@@ -3,7 +3,8 @@
 This repository fine-tunes the Llasa TTS model with GRPO using Hugging Face `transformers`, `trl`, and `datasets`, and evaluates rewards via Whisper ASR and WER.
 
 ### Models
-- **Llasa (policy)**: [HKUSTAudio/Llasa-1B](https://huggingface.co/HKUSTAudio/Llasa-1B)
+- **Llasa**: [HKUSTAudio/Llasa-1B](https://huggingface.co/HKUSTAudio/Llasa-1B)
+- **Llasa finetuned with GRPO**: [HKUSTAudio/Llasa-1B](https://huggingface.co/HKUSTAudio/Llasa-1B)
 - **Neural codec (decode)**: [HKUSTAudio/xcodec2](https://huggingface.co/HKUSTAudio/xcodec2)
 - **ASR reward model**: `openai/whisper-large-v3`
 
@@ -70,11 +71,29 @@ Optional fields produced by `create_dataset.py` (not required for GRPO, but usef
 
 To build/publish that dataset yourself, see `create_dataset.py` (encodes audio with XCodec2 and pushes to the Hub).
 
+You can use it like this: 
+
+```bash
+python create_dataset.py \
+  --dataset-id MrDragonFox/Elise \
+  --split train \
+  --push-id Steveeeeeeen/Elise-xcodec2 \
+  --codec-id HKUSTAudio/xcodec2 \
+  --sampling-rate 16000
+```
+
 ## Training
 
 Run the GRPO trainer:
 ```bash
-python train.py
+python train.py \
+  --model-id HKUSTAudio/Llasa-1B \
+  --dataset-id Steveeeeeeen/Elise-xcodec2 \
+  --dataset-split train \
+  --output-dir Llasa-1B-GRPO \
+  --save-steps 500 \
+  --save-total-limit 3 \
+  --max-steps 2000
 ```
 
 What it does (see `train.py`):
@@ -93,10 +112,18 @@ Customizing:
 
 ## Inference
 
-Generate a waveform with the base or fine-tuned checkpoint using `test.py`:
+Generate a waveform with the base or fine-tuned checkpoint using `inference.py`:
 
 ```bash
-python test.py
+python inference.py \
+  --llasa-id Llasa-1B-GRPO/checkpoint-2000 \
+  --codec-id HKUSTAudio/xcodec2 \
+  --text "Hello world from Llasa with GRPO." \
+  --output gen_grpo.wav \
+  --max-length 2048 \
+  --temperature 0.8 \
+  --top-p 1.0 \
+  --device auto
 ```
 
 ## License and usage
