@@ -12,7 +12,7 @@ This repository fine-tunes the Llasa TTS model with GRPO using Hugging Face `tra
 
 ### Step 1: Clone the repository
 ```bash
-git clone https://github.com/your-org/GRPO_Llasa.git
+git clone git@github.com:Deep-unlearning/Llasa-GRPO.git
 cd GRPO_Llasa
 ```
 
